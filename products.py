@@ -14,25 +14,25 @@ class Product:
     Provides methods to manage inventory, update status, display details,
     and process purchases.
     """
-    def __init__(self, name, price, quantity):
+    def __init__(self, name, price, quantity, active=True):
         """Initialize a product with name, price, and quantity."""
-        try:
-            if str(name) == "":
-                raise ValueError("Product name cannot be empty")
-            self.name = str(name)
+        if str(name) == "":
+            raise ValueError("Product name cannot be empty")
+        self.name = str(name)
 
-            if float(price) < 0 or any(elem.isalpha() for elem in str(price)):
-                raise ValueError("Invalid price, please provide a real number, "
-                                 "greater than zero")
-            self.price = float(price)
+        if str(price) == "" or any(elem.isalpha() for elem in str(price)) or float(price) < 0:
+            raise ValueError("Invalid price, please provide a real number, "
+                             "greater than zero")
+        self.price = float(price)
 
-            if int(quantity) < 0 or any(elem.isalpha() for elem in str(quantity)):
-                raise ValueError("Invalid quantity, please provide a real number, "
-                                 "greater or equal to zero")
-            self.quantity = int(quantity)
-            self.active = True
-        except (TypeError, ValueError) as error:
-            print(error)
+        if (str(quantity) == "" or any(elem.isalpha() for elem in str(quantity))
+                or int(quantity) < 0):
+            raise ValueError("Invalid quantity, please provide a real number, "
+                             "greater or equal to zero")
+        self.quantity = int(quantity)
+        self.active=active
+        if self.quantity == 0:
+            self.active = False
 
     def get_quantity(self):
         """Return the current quantity in stock."""
@@ -40,20 +40,18 @@ class Product:
 
     def set_quantity(self, quantity):
         """Update the product quantity and deactivate if it reaches zero."""
-        try:
-            if int(quantity) < 0 or any(elem.isalpha() for elem in str(quantity)):
-                raise ValueError("Invalid quantity, please provide a real number, "
-                                 "greater or equal to zero")
+        if (str(quantity) == "" or any(elem.isalpha() for elem in str(quantity))
+                or int(quantity) < 0):
+            raise ValueError("Invalid quantity, please provide a real number, "
+                             "greater or equal to zero")
 
-            self.quantity = int(quantity)
-            if self.quantity == 0:
-                self.active = False
-        except (TypeError, ValueError) as error:
-            print(error)
+        self.quantity = int(quantity)
+        if self.quantity == 0:
+            self.active = False
 
     def is_active(self):
         """Return True if the product is active, else False."""
-        return self.active is True
+        return self.active
 
     def activate(self):
         """Mark the product as active."""
@@ -69,7 +67,8 @@ class Product:
 
     def buy(self, quantity):
         """Reduce stock by given quantity and return total price."""
-        if int(quantity) < 0 or any(elem.isalpha() for elem in str(quantity)):
+        if (str(quantity) == "" or any(elem.isalpha() for elem in str(quantity))
+                or int(quantity) < 0):
             raise ValueError("Invalid quantity, please provide a real number, "
                              "greater or equal to zero")
         if self.quantity < quantity:
@@ -77,33 +76,3 @@ class Product:
 
         self.set_quantity(self.quantity-quantity)
         return float(self.price * quantity)
-
-
-if __name__ == "__main__":
-    Product("", price=100, quantity=50)
-    Product("Product", price=-100, quantity=50)
-    Product("Product", price="-100", quantity=50)
-    Product("Product", price="", quantity=50)
-    Product("Product", price=100, quantity="50")
-    Product("Product", price=100, quantity=-50)
-    Product("Product", price=100, quantity="-50")
-    Product("Product", price=100, quantity="")
-    bose = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
-    mac = Product("MacBook Air M2", price=1450, quantity=100)
-
-    print(bose.buy(50))
-    print(mac.buy(100))
-    print(mac.is_active())
-
-    bose.show()
-    mac.show()
-
-    bose.set_quantity(1000)
-    bose.show()
-    bose.set_quantity("")
-    bose.set_quantity(-1000)
-    bose.set_quantity(-1000.342)
-    bose.set_quantity("-1000")
-    bose.set_quantity("-1000.12312")
-    bose.set_quantity(1501.99)
-    bose.show()
