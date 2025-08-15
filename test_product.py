@@ -10,10 +10,10 @@ from products import Product
 def test_init_valid():
     """Verify that a Product is initialized correctly with valid inputs."""
     t_product = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
-    assert t_product.name == "Bose QuietComfort Earbuds"
-    assert t_product.price == 250
-    assert t_product.quantity == 500
-    assert t_product.active is True
+    assert t_product.get_name() == "Bose QuietComfort Earbuds"
+    assert t_product.get_price() == 250.0
+    assert t_product.get_quantity() == 500
+    assert t_product.is_active() is True
 
 
 def test_init_invalid():
@@ -63,7 +63,7 @@ def test_set_quantity_valid():
     t_product = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
     t_product.set_quantity(0)
     assert t_product.get_quantity() == 0
-    assert t_product.active is False
+    assert t_product.is_active() is False
 
 
 def test_set_quantity_invalid():
@@ -92,11 +92,11 @@ def test_is_active():
 def test_activate_deactivate():
     """Ensure activate() and deactivate() correctly toggle product active status."""
     t_product = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
-    assert t_product.active is True
+    assert t_product.is_active() is True
     t_product.deactivate()
-    assert t_product.active is False
+    assert t_product.is_active() is False
     t_product.activate()
-    assert t_product.active is True
+    assert t_product.is_active() is True
 
 
 # ---------- Show ----------

@@ -14,7 +14,8 @@ def list_all_products(store_p):
     print("------")
     index = 1
     for prod in store_p.get_all_products():
-        print(f"{index}. {prod.name}, Price: ${prod.price}, Quantity: {prod.quantity}")
+        print(f"{index}. {prod.get_name()}, "
+              f"Price: ${prod.get_price()}, Quantity: {prod.get_quantity()}")
         index += 1
     print("------")
 
@@ -35,18 +36,18 @@ def make_an_order(store_p):
             if not product_nr:
                 break
             if (any(elem.isalpha() for elem in str(product_nr)) or int(product_nr) == 0 or
-                    int(product_nr) > len(store_p.list_of_products)):
+                    int(product_nr) > len(store_p.get_list_of_products())):
                 print("Error adding product!\n")
                 continue
             quantity = int(input("What amount do you want? "))
             if not quantity:
                 break
             if (any(elem.isalpha() for elem in str(quantity)) or
-                    int(quantity) > store_p.list_of_products[int(product_nr) - 1].get_quantity()):
+                    int(quantity) > store_p.get_list_of_products()[int(product_nr) - 1].get_quantity()):
                 print("Error while making order! Quantity larger than what exists\n")
                 continue
 
-            order_list.append((store_p.list_of_products[int(product_nr) - 1], quantity))
+            order_list.append((store_p.get_list_of_products()[int(product_nr) - 1], quantity))
             print("Product added to list!\n")
         except (ValueError, TypeError) as error:
             print(error)
