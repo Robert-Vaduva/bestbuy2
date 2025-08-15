@@ -57,32 +57,3 @@ class Store:
                 if prod.get_quantity() == 0:
                     self.remove_product(prod)
         return total_price
-
-
-if __name__ == "__main__":
-    bose = products.Product("Bose QuietComfort Earbuds", price=250, quantity=500)
-    mac = products.Product("MacBook Air M2", price=1450, quantity=100)
-
-    # instance of a store
-    best_buy = Store([bose, mac])
-    Store()
-    Store({0: "0", 1: "1"})
-    Store(((0, 0), (1, 1)))
-    print(best_buy.list_of_products)
-
-    pixel = products.Product("Google Pixel 7", price=500, quantity=250)
-    best_buy.add_product(pixel)
-    best_buy.remove_product("google")
-
-    price = best_buy.order([(bose, 5), (mac, 30), (bose, 10)])
-    print(f"Order cost: {price} dollars.")
-
-    product_list = [products.Product("MacBook Air M2", price=1450, quantity=100),
-                    products.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-                    products.Product("Google Pixel 7", price=500, quantity=250),
-                    ]
-
-    best_buy = Store(product_list)
-    products = best_buy.get_all_products()
-    print(best_buy.get_total_quantity())
-    print(best_buy.order([(products[0], 2), (products[1], 2)]))

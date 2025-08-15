@@ -30,7 +30,7 @@ class Product:
             raise ValueError("Invalid quantity, please provide a real number, "
                              "greater or equal to zero")
         self.quantity = int(quantity)
-        self.active=active
+        self.active = active
         if self.quantity == 0:
             self.active = False
 
