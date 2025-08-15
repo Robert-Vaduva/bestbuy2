@@ -95,6 +95,8 @@ class NonStockedProduct(Product):
     def __init__(self, name, price):
         """Initialize non-stocked product with zero quantity."""
         super().__init__(name, price, quantity=0)
+        self._quantity = 0
+        self._active = True
 
     def set_quantity(self, _quantity):
         """Force quantity to remain zero."""
@@ -125,15 +127,27 @@ class LimitedProduct(Product):
         super().__init__(name, price, quantity)
         self._maximum = maximum
 
+    def get_maximum(self):
+        """Return the maximum allowed quantity per order."""
+        return self._maximum
+
+    def set_maximum(self, maximum):
+        """Set the maximum allowed quantity per order."""
+        if (str(maximum) == "" or any(elem.isalpha() for elem in str(maximum))
+                or int(maximum) < 0):
+            raise ValueError("Invalid maximum quantity, please provide a real number, "
+                             "greater than zero")
+        self._maximum = int(maximum)
+
     def buy(self, quantity):
         """Purchase quantity if valid and within stock and limit."""
         if (str(quantity) == "" or any(elem.isalpha() for elem in str(quantity))
                 or int(quantity) < 0):
             raise ValueError("Invalid quantity, please provide a real number, "
-                             "greater or equal to zero")
+                             "greater than zero")
         if self._quantity < quantity:
             raise ValueError("The requested quantity is higher than the current stock")
-        if self._maximum < quantity:
+        if self._maximum <= quantity:
             raise ValueError("The requested quantity is higher than maximum per order")
 
         self.set_quantity(self._quantity - quantity)
