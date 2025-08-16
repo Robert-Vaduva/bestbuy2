@@ -94,4 +94,4 @@ def test_buy_invalid():
     # check order greater than maximum
     t_product = LimitedProduct("MacBook Air M2", price=1450, quantity=100, maximum=15)
     with pytest.raises(ValueError, match="The requested quantity is higher than maximum per order"):
-        t_product.buy(15)
+        t_product.buy(16)

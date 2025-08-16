@@ -45,17 +45,13 @@ def test_set_quantity():
 
 
 # ---------- Show ----------
-def test_show(capfd):
+def test_show():
     """Test that show prints correct product details."""
     bose = NonStockedProduct("Bose QuietComfort Earbuds", price=250)
-    bose.show()
-    captured = capfd.readouterr()
-    assert captured.out.strip() == "Bose QuietComfort Earbuds, Price: $250.0, Quantity: 0"
+    assert bose.show() == "Bose QuietComfort Earbuds, Price: $250.0, Quantity: 0"
 
     mac = NonStockedProduct("MacBook Air M2", price=1450)
-    mac.show()
-    captured = capfd.readouterr()
-    assert captured.out.strip() == "MacBook Air M2, Price: $1450.0, Quantity: 0"
+    assert mac.show() == "MacBook Air M2, Price: $1450.0, Quantity: 0"
 
 
 # ---------- Buy ----------

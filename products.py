@@ -7,6 +7,8 @@ inventory management, product activation/deactivation, displaying product
 details, and processing purchases.
 """
 
+import promotions
+
 
 class Product:
     """
@@ -34,6 +36,7 @@ class Product:
         self._active = active
         if self._quantity == 0:
             self._active = False
+        self._promotion = None
 
     def get_name(self):
         """Return the name of the product."""
@@ -72,7 +75,8 @@ class Product:
 
     def show(self):
         """Display product details (name, price, quantity)."""
-        print(f"{self._name}, Price: ${self._price}, Quantity: {self._quantity}")
+        promo_info = f", Promotion: {self._promotion.get_name()}" if self._promotion else ""
+        return f"{self._name}, Price: ${self._price}, Quantity: {self._quantity}{promo_info}"
 
     def buy(self, quantity):
         """Reduce stock by given quantity and return total price."""
@@ -84,7 +88,24 @@ class Product:
             raise ValueError("The requested quantity is higher than the current stock")
 
         self.set_quantity(self._quantity - quantity)
+        if self._promotion:
+            return float(self._promotion.apply_promotion(self, quantity))
         return float(self._price * quantity)
+
+    def set_promotion(self, promotion):
+        """Assign a promotion to the product."""
+        if isinstance(promotion, promotions.Promotion):
+            self._promotion = promotion
+        else:
+            raise TypeError("Only Promotion instances can be added")
+
+    def remove_promotion(self):
+        """Remove the promotion from the product."""
+        self._promotion = None
+
+    def get_promotion(self):
+        """Return the current promotion of the product."""
+        return self._promotion
 
 
 class NonStockedProduct(Product):
@@ -92,6 +113,7 @@ class NonStockedProduct(Product):
     Represents a product that is never stocked.
     Quantity is always zero, but it can still be 'purchased' for record-keeping or service purposes.
     """
+
     def __init__(self, name, price):
         """Initialize non-stocked product with zero quantity."""
         super().__init__(name, price, quantity=0)
@@ -104,7 +126,8 @@ class NonStockedProduct(Product):
 
     def show(self):
         """Print product name, price, and fixed zero quantity."""
-        print(f"{self._name}, Price: ${self._price}, Quantity: 0")
+        promo_info = f", Promotion: {self._promotion.get_name()}" if self._promotion else ""
+        return f"{self._name}, Price: ${self._price}, Quantity: 0{promo_info}"
 
     def buy(self, quantity):
         """Reduce stock by given quantity and return total price."""
@@ -114,6 +137,8 @@ class NonStockedProduct(Product):
                              "greater or equal to zero")
 
         self.set_quantity(self._quantity - quantity)
+        if self._promotion:
+            return float(self._promotion.apply_promotion(self, quantity))
         return float(self._price * quantity)
 
 
@@ -122,6 +147,7 @@ class LimitedProduct(Product):
     Inherits from Product and adds a 'maximum' attribute that restricts
     how many units can be bought in a single order.
     """
+
     def __init__(self, name, price, quantity, maximum):
         """Initialize product with stock quantity and per-order limit."""
         super().__init__(name, price, quantity)
@@ -139,6 +165,12 @@ class LimitedProduct(Product):
                              "greater than zero")
         self._maximum = int(maximum)
 
+    def show(self):
+        """Print product name, price, and fixed zero quantity."""
+        promo_info = f", Promotion: {self._promotion.get_name()}" if self._promotion else ""
+        return (f"{self._name}, Price: ${self._price}, "
+                f"Quantity: {self._quantity}, Limit: {self._maximum}{promo_info}")
+
     def buy(self, quantity):
         """Purchase quantity if valid and within stock and limit."""
         if (str(quantity) == "" or any(elem.isalpha() for elem in str(quantity))
@@ -147,8 +179,36 @@ class LimitedProduct(Product):
                              "greater than zero")
         if self._quantity < quantity:
             raise ValueError("The requested quantity is higher than the current stock")
-        if self._maximum <= quantity:
+        if self._maximum < quantity:
             raise ValueError("The requested quantity is higher than maximum per order")
 
         self.set_quantity(self._quantity - quantity)
+        if self._promotion:
+            return float(self._promotion.apply_promotion(self, quantity))
         return float(self._price * quantity)
+
+
+if __name__ == "__main__":
+    # setup initial stock of inventory
+    product_list = [Product("MacBook Air M2", price=1450, quantity=100),
+                    Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                    Product("Google Pixel 7", price=500, quantity=250),
+                    NonStockedProduct("Windows License", price=125),
+                    LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
+                    ]
+
+    # Create promotion catalog
+    second_half_price = promotions.SecondHalfPrice()
+    third_one_free = promotions.ThirdOneFree()
+    thirty_percent = promotions.PercentDiscount(30)
+
+    # Check promotions
+    print(product_list[0].buy(5))
+    product_list[0].set_promotion(second_half_price)
+    print(product_list[0].buy(5))
+    product_list[0].set_promotion(third_one_free)
+    print(product_list[0].buy(5))
+    product_list[0].set_promotion(thirty_percent)
+    print(product_list[0].buy(5))
+    product_list[0].remove_promotion()
+    print(product_list[0].buy(5))

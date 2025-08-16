@@ -6,6 +6,7 @@ place orders, and exit the application.
 """
 import sys
 import products
+import promotions
 import store
 
 
@@ -14,8 +15,7 @@ def list_all_products(store_p):
     print("------")
     index = 1
     for prod in store_p.get_all_products():
-        print(f"{index}. {prod.get_name()}, "
-              f"Price: ${prod.get_price()}, Quantity: {prod.get_quantity()}")
+        print(f"{index}. " + prod.show())
         index += 1
     print("------")
 
@@ -88,7 +88,22 @@ if __name__ == "__main__":
     # setup initial stock of inventory
     product_list = [products.Product("MacBook Air M2", price=1450, quantity=100),
                     products.Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-                    products.Product("Google Pixel 7", price=500, quantity=250)
+                    products.Product("Google Pixel 7", price=500, quantity=250),
+                    products.NonStockedProduct("Windows License", price=125),
+                    products.LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
                     ]
+
+    # Create promotion catalog
+    second_half_price = promotions.SecondHalfPrice()
+    third_one_free = promotions.ThirdOneFree()
+    thirty_percent = promotions.PercentDiscount(disc_percent=30)
+
+    # Add promotions to products
+    product_list[0].set_promotion(second_half_price)
+    product_list[1].set_promotion(third_one_free)
+    product_list[2].set_promotion(thirty_percent)
+    product_list[3].set_promotion(second_half_price)
+    product_list[4].set_promotion(thirty_percent)
+
     best_buy = store.Store(product_list)
     start(best_buy)

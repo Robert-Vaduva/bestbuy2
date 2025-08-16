@@ -100,12 +100,10 @@ def test_activate_deactivate():
 
 
 # ---------- Show ----------
-def test_show(capfd):
+def test_show():
     """Verify that show() prints the product details in the expected format."""
     t_product = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
-    t_product.show()
-    captured = capfd.readouterr()
-    assert captured.out.strip() == "Bose QuietComfort Earbuds, Price: $250.0, Quantity: 500"
+    assert t_product.show() == "Bose QuietComfort Earbuds, Price: $250.0, Quantity: 500"
 
 
 # ---------- Buy ----------
