@@ -39,8 +39,6 @@ class SecondHalfPrice(Promotion):
 
     def apply_promotion(self, product, quantity):
         """Apply second-half-price discount to the purchase."""
-        print("Second Half Price - apply promotion")
-
         if quantity <= 0:
             raise ValueError("Quantity must be greater than zero")
         pairs = quantity // 2
@@ -56,7 +54,8 @@ class ThirdOneFree(Promotion):
 
     def apply_promotion(self, product, quantity: int) -> float:
         """Apply buy-two-get-one-free discount to the purchase."""
-        print("Third One Free - apply promotion")
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than zero")
         groups_of_three = quantity // 3
         remainder = quantity % 3
         return (groups_of_three * 2 + remainder) * product.get_price()
@@ -66,11 +65,20 @@ class PercentDiscount(Promotion):
     """Promotion that applies a percentage discount to all items in the purchase."""
     def __init__(self, disc_percent: float):
         """Initialize percent discount promotion."""
+        if (str(disc_percent) == "" or any(elem.isalpha() for elem in str(disc_percent))
+                or int(disc_percent) < 0) or int(disc_percent) > 100:
+            raise ValueError("Invalid discount provided, please give a number between 0 and 100")
+
         super().__init__(name=f"{disc_percent}% off!")
         self._percent = disc_percent
 
+    def get_percent(self):
+        """Return the discount percentage of the promotion."""
+        return self._percent
+
     def apply_promotion(self, product, quantity: int) -> float:
         """Apply percentage discount to the purchase."""
-        print("Percent Discount - apply promotion")
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than zero")
         discount_multiplier = (100 - self._percent) / 100
         return quantity * discount_multiplier * product.get_price()
