@@ -42,15 +42,14 @@ def make_an_order(store_p):
             quantity = int(input("What amount do you want? "))
             if not quantity:
                 break
-            if (any(elem.isalpha() for elem in str(quantity)) or
-                    int(quantity) > store_p.get_list_of_products()[int(product_nr) - 1].get_quantity()):
-                print("Error while making order! Quantity larger than what exists\n")
+            if any(elem.isalpha() for elem in str(quantity)) or int(quantity) < 0:
+                print("Error while making order, invalid quantity provided!\n")
                 continue
 
             order_list.append((store_p.get_list_of_products()[int(product_nr) - 1], quantity))
             print("Product added to list!\n")
-        except (ValueError, TypeError) as error:
-            print(error)
+        except (ValueError, TypeError):
+            print("Error with your choice! Try again!\n")
     total_payment = store_p.order(order_list)
     if total_payment > 0:
         print("********")

@@ -58,6 +58,6 @@ class Store:
         for prod, quantity in shopping_list:
             if prod in self._list_of_products:
                 total_price += prod.buy(quantity)
-                if prod.get_quantity() == 0:
+                if prod.get_quantity() == 0 and not isinstance(prod, products.NonStockedProduct):
                     self.remove_product(prod)
         return total_price

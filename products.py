@@ -136,7 +136,7 @@ class NonStockedProduct(Product):
             raise ValueError("Invalid quantity, please provide a real number, "
                              "greater or equal to zero")
 
-        self.set_quantity(self._quantity - quantity)
+        self.set_quantity(self._quantity - quantity) # redundant - used to clear possible failures
         if self._promotion:
             return float(self._promotion.apply_promotion(self, quantity))
         return float(self._price * quantity)
