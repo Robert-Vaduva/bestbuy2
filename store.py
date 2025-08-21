@@ -9,6 +9,19 @@ as well as tracking inventory.
 import products
 
 
+def make_compact_order_list(shopping_list):
+    # get the unique elements in the list
+    unique_elements = dict(shopping_list)
+    new_list = []
+    for key, value in unique_elements.items():
+        value = 0
+        for item in shopping_list:
+            if item[0] == key:
+                value += item[1]
+        new_list.append((key, value))
+    return new_list
+
+
 class Store:
     """Store that holds and manages multiple products."""
     def __init__(self, list_of_products=None):
@@ -55,7 +68,8 @@ class Store:
     def order(self, shopping_list):
         """ Process a list of (Product, quantity) purchases and return total cost."""
         total_price = 0
-        for prod, quantity in shopping_list:
+        compact_list = make_compact_order_list(shopping_list)
+        for prod, quantity in compact_list:
             if prod in self._list_of_products:
                 total_price += prod.buy(quantity)
                 if prod.get_quantity() == 0 and not isinstance(prod, products.NonStockedProduct):
