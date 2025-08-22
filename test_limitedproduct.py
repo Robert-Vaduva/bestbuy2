@@ -72,26 +72,33 @@ def test_buy_valid():
     assert t_product.get_quantity() == 76
 
 
-def test_buy_invalid():
+def test_buy_invalid(capfd):
     """Test buying invalid quantities or exceeding stock/limit raises ValueError."""
     # check invalid order
     t_product = LimitedProduct("MacBook Air M2", price=1450, quantity=100, maximum=15)
-    with pytest.raises(ValueError, match="Invalid quantity, please provide a real number, "
-                                         "greater than zero"):
-        t_product.buy("")
-    with pytest.raises(ValueError, match="Invalid quantity, please provide a real number, "
-                                         "greater than zero"):
-        t_product.buy("150a")
-    with pytest.raises(ValueError, match="Invalid quantity, please provide a real number, "
-                                         "greater than zero"):
-        t_product.buy(-123)
+    t_product.buy("")
+    captured = capfd.readouterr()
+    assert captured.out.strip() == ("Invalid quantity, please provide a real number,"
+                                    " greater or equal to zero")
+
+    t_product.buy("250a")
+    captured = capfd.readouterr()
+    assert captured.out.strip() == ("Invalid quantity, please provide a real number,"
+                                    " greater or equal to zero")
+
+    t_product.buy(-250)
+    captured = capfd.readouterr()
+    assert captured.out.strip() == ("Invalid quantity, please provide a real number,"
+                                    " greater or equal to zero")
 
     # check order greater than quantity and lower than maximum
     t_product = LimitedProduct("MacBook Air M2", price=1450, quantity=10, maximum=15)
-    with pytest.raises(ValueError, match="The requested quantity is higher than the current stock"):
-        t_product.buy(14)
+    t_product.buy(14)
+    captured = capfd.readouterr()
+    assert captured.out.strip() == "The requested quantity is higher than the current stock"
 
     # check order greater than maximum
-    t_product = LimitedProduct("MacBook Air M2", price=1450, quantity=100, maximum=15)
-    with pytest.raises(ValueError, match="The requested quantity is higher than maximum per order"):
-        t_product.buy(16)
+    t_product = LimitedProduct("MacBook Air M2", price=1450, quantity=20, maximum=15)
+    t_product.buy(16)
+    captured = capfd.readouterr()
+    assert captured.out.strip() == "The requested quantity is higher than maximum per order"

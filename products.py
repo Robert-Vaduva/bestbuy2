@@ -7,6 +7,7 @@ inventory management, product activation/deactivation, displaying product
 details, and processing purchases.
 """
 
+
 import promotions
 
 
@@ -82,10 +83,12 @@ class Product:
         """Reduce stock by given quantity and return total price."""
         if (str(quantity) == "" or any(elem.isalpha() for elem in str(quantity))
                 or int(quantity) < 0):
-            raise ValueError("Invalid quantity, please provide a real number, "
-                             "greater or equal to zero")
+            print("Invalid quantity, please provide a real number, "
+                  "greater or equal to zero")
+            return float(0)
         if self._quantity < quantity:
-            raise ValueError("The requested quantity is higher than the current stock")
+            print("The requested quantity is higher than the current stock")
+            return float(0)
 
         self.set_quantity(self._quantity - quantity)
         if self._promotion:
@@ -127,14 +130,15 @@ class NonStockedProduct(Product):
     def show(self):
         """Print product name, price, and fixed zero quantity."""
         promo_info = f", Promotion: {self._promotion.get_name()}" if self._promotion else ""
-        return f"{self._name}, Price: ${self._price}, Quantity: 0{promo_info}"
+        return f"{self._name}, Price: ${self._price}, Quantity: Unlimited{promo_info}"
 
     def buy(self, quantity):
         """Reduce stock by given quantity and return total price."""
         if (str(quantity) == "" or any(elem.isalpha() for elem in str(quantity))
                 or int(quantity) < 0):
-            raise ValueError("Invalid quantity, please provide a real number, "
-                             "greater or equal to zero")
+            print("Invalid quantity, please provide a real number, "
+                  "greater or equal to zero")
+            return float(0)
 
         self.set_quantity(self._quantity - quantity) # redundant - used to clear possible failures
         if self._promotion:
@@ -175,40 +179,17 @@ class LimitedProduct(Product):
         """Purchase quantity if valid and within stock and limit."""
         if (str(quantity) == "" or any(elem.isalpha() for elem in str(quantity))
                 or int(quantity) < 0):
-            raise ValueError("Invalid quantity, please provide a real number, "
-                             "greater than zero")
+            print("Invalid quantity, please provide a real number, "
+                  "greater or equal to zero")
+            return float(0)
         if self._quantity < quantity:
-            raise ValueError("The requested quantity is higher than the current stock")
+            print("The requested quantity is higher than the current stock")
+            return float(0)
         if self._maximum < quantity:
-            raise ValueError("The requested quantity is higher than maximum per order")
+            print("The requested quantity is higher than maximum per order")
+            return float(0)
 
         self.set_quantity(self._quantity - quantity)
         if self._promotion:
             return float(self._promotion.apply_promotion(self, quantity))
         return float(self._price * quantity)
-
-
-if __name__ == "__main__":
-    # setup initial stock of inventory
-    product_list = [Product("MacBook Air M2", price=1450, quantity=100),
-                    Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-                    Product("Google Pixel 7", price=500, quantity=250),
-                    NonStockedProduct("Windows License", price=125),
-                    LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
-                    ]
-
-    # Create promotion catalog
-    second_half_price = promotions.SecondHalfPrice()
-    third_one_free = promotions.ThirdOneFree()
-    thirty_percent = promotions.PercentDiscount(30)
-
-    # Check promotions
-    print(product_list[0].buy(5))
-    product_list[0].set_promotion(second_half_price)
-    print(product_list[0].buy(5))
-    product_list[0].set_promotion(third_one_free)
-    print(product_list[0].buy(5))
-    product_list[0].set_promotion(thirty_percent)
-    print(product_list[0].buy(5))
-    product_list[0].remove_promotion()
-    print(product_list[0].buy(5))

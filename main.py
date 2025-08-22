@@ -4,6 +4,8 @@ Main application for interacting with the store.
 Provides a text-based menu to list products, show inventory totals,
 place orders, and exit the application.
 """
+
+
 import sys
 import products
 import promotions

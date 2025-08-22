@@ -2,8 +2,10 @@
 Unit tests for the Store class using pytest.
 """
 
+
 import pytest
-from store import Store
+import promotions
+from store import Store, make_compact_order_list
 from products import Product
 
 
@@ -199,3 +201,61 @@ def test_order_invalid():
     assert best_buy.get_total_quantity() == 595
     assert best_buy.get_all_products() == [bose, mac]
     assert price == 1250
+
+
+def test_order_promotions():
+    """Test placing valid orders and updating quantities."""
+    # initialization with 3 products
+    bose = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
+    mac = Product("MacBook Air M2", price=1450, quantity=100)
+    google = Product("Google Pixel 7", price=500, quantity=250)
+    best_buy = Store([bose, mac, google])
+
+    # check order in case of same products added multiple times
+    second_half_price = promotions.SecondHalfPrice()
+    bose.set_promotion(second_half_price)
+    price = best_buy.order([(bose, 1), (bose, 1)])
+    assert price == bose.get_price() * 1.5
+
+    # check order in case of same products added multiple times
+    third_one_free = promotions.ThirdOneFree()
+    google.set_promotion(third_one_free)
+    price = best_buy.order([(google, 1), (google, 2)])
+    assert price == google.get_price() * 2.0
+
+    # check order in case of same products added multiple times
+    thirty_percent = promotions.PercentDiscount(disc_percent=30)
+    mac.set_promotion(thirty_percent)
+    price = best_buy.order([(mac, 1), (mac, 2)])
+    assert round(price, 1) == 3 * mac.get_price() * 0.7
+
+
+# ---------- Compact List ----------
+def test_make_compact_order_list_valid():
+    """Verify that it correctly sums quantities for duplicates and handles various inputs."""
+    # check list with duplicate elements
+    check_list = [("a", 5), ("b", 3), ("a", 7), ("c", 2)]
+    assert make_compact_order_list(check_list) == [('a', 12), ('b', 3), ('c', 2)]
+
+    # check empty list
+    check_list = []
+    assert make_compact_order_list(check_list) == []
+
+    # check list with unique elements
+    check_list = [("a", 5), ("b", 3), ("c", 7), ("d", 2)]
+    assert make_compact_order_list(check_list) == [("a", 5), ("b", 3), ("c", 7), ("d", 2)]
+
+
+def test_make_compact_order_list_invalid(capfd):
+    """Ensure make_compact_order_list returns [] and prints an error for invalid input types."""
+    # check with a number instead of a list
+    check_list = 12
+    assert make_compact_order_list(check_list) == []
+    captured = capfd.readouterr()
+    assert captured.out.strip() == "Please provide a list of tuples of type (product, quantity)"
+
+    # check with a dictionary instead of a list
+    check_list = {("a", 5), ("b", 3), ("c", 7), ("d", 2)}
+    assert make_compact_order_list(check_list) == []
+    captured = capfd.readouterr()
+    assert captured.out.strip() == "Please provide a list of tuples of type (product, quantity)"

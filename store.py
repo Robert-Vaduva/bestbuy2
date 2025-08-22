@@ -10,15 +10,19 @@ import products
 
 
 def make_compact_order_list(shopping_list):
+    """Combine duplicate items in the shopping list by summing their quantities."""
     # get the unique elements in the list
-    unique_elements = dict(shopping_list)
     new_list = []
-    for key, value in unique_elements.items():
-        value = 0
-        for item in shopping_list:
-            if item[0] == key:
-                value += item[1]
-        new_list.append((key, value))
+    if isinstance(shopping_list, list):
+        unique_elements = dict(shopping_list)
+        for key, value in unique_elements.items():
+            value = 0
+            for item in shopping_list:
+                if item[0] == key:
+                    value += item[1]
+            new_list.append((key, value))
+        return new_list
+    print("Please provide a list of tuples of type (product, quantity)")
     return new_list
 
 

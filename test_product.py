@@ -107,24 +107,31 @@ def test_show():
 
 
 # ---------- Buy ----------
-def test_buy_valid():
+def test_buy_valid(capfd):
     """Verify buy() decreases quantity correctly and enforces stock limits."""
     t_product = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
     t_product.buy(251)
     assert t_product.get_quantity() == 249
-    with pytest.raises(ValueError, match="The requested quantity is higher than the current stock"):
-        t_product.buy(501)
+
+    t_product.buy(501)
+    captured = capfd.readouterr()
+    assert captured.out.strip() == "The requested quantity is higher than the current stock"
 
 
-def test_buy_invalid():
+def test_buy_invalid(capfd):
     """Ensure buy() raises ValueError for non-numeric or negative quantities."""
     t_product = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
-    with pytest.raises(ValueError, match="Invalid quantity, please provide a real number,"
-                                         " greater or equal to zero"):
-        t_product.buy("")
-    with pytest.raises(ValueError, match="Invalid quantity, please provide a real number,"
-                                         " greater or equal to zero"):
-        t_product.buy("250a")
-    with pytest.raises(ValueError, match="Invalid quantity, please provide a real number,"
-                                         " greater or equal to zero"):
-        t_product.buy(-250)
+
+    t_product.buy("")
+    captured = capfd.readouterr()
+    assert captured.out.strip() == ("Invalid quantity, please provide a real number,"
+                                    " greater or equal to zero")
+
+    t_product.buy("250a")
+    captured = capfd.readouterr()
+    assert captured.out.strip() == ("Invalid quantity, please provide a real number,"
+                                    " greater or equal to zero")
+
+    t_product.buy(-250)
+    assert captured.out.strip() == ("Invalid quantity, please provide a real number,"
+                                    " greater or equal to zero")

@@ -13,7 +13,6 @@ class inherits from the Product base class.
 """
 
 
-import pytest
 from products import NonStockedProduct
 
 
@@ -48,10 +47,10 @@ def test_set_quantity():
 def test_show():
     """Test that show prints correct product details."""
     bose = NonStockedProduct("Bose QuietComfort Earbuds", price=250)
-    assert bose.show() == "Bose QuietComfort Earbuds, Price: $250.0, Quantity: 0"
+    assert bose.show() == "Bose QuietComfort Earbuds, Price: $250.0, Quantity: Unlimited"
 
     mac = NonStockedProduct("MacBook Air M2", price=1450)
-    assert mac.show() == "MacBook Air M2, Price: $1450.0, Quantity: 0"
+    assert mac.show() == "MacBook Air M2, Price: $1450.0, Quantity: Unlimited"
 
 
 # ---------- Buy ----------
@@ -64,15 +63,19 @@ def test_buy_valid():
     assert t_product.get_quantity() == 0
 
 
-def test_buy_invalid():
+def test_buy_invalid(capfd):
     """Test buying invalid quantities raises ValueError."""
     t_product = NonStockedProduct("Bose QuietComfort Earbuds", price=250)
-    with pytest.raises(ValueError, match="Invalid quantity, please provide a real number,"
-                                         " greater or equal to zero"):
-        t_product.buy("")
-    with pytest.raises(ValueError, match="Invalid quantity, please provide a real number,"
-                                         " greater or equal to zero"):
-        t_product.buy("250a")
-    with pytest.raises(ValueError, match="Invalid quantity, please provide a real number,"
-                                         " greater or equal to zero"):
-        t_product.buy(-250)
+    t_product.buy("")
+    captured = capfd.readouterr()
+    assert captured.out.strip() == ("Invalid quantity, please provide a real number,"
+                                    " greater or equal to zero")
+
+    t_product.buy("250a")
+    captured = capfd.readouterr()
+    assert captured.out.strip() == ("Invalid quantity, please provide a real number,"
+                                    " greater or equal to zero")
+
+    t_product.buy(-250)
+    assert captured.out.strip() == ("Invalid quantity, please provide a real number,"
+                                    " greater or equal to zero")
